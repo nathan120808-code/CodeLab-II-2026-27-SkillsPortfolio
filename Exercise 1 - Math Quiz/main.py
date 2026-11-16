@@ -64,7 +64,7 @@ def displayMenu():
                 font= button_font,
                 width= 20,
                 height= 2,
-                command=lambda: open_questions('intermediate')).pack(pady= 10)
+                command=lambda: open_questions('moderate')).pack(pady= 10)
     dif3 = tk.Button(main, text='Advanced',
                 bg='red',
                 font= button_font,
@@ -129,16 +129,51 @@ def get_rank(score):
     else:
         return "F"
 
+def displayResults(score, win):
+    """displays user total score and rank, it also prompts the user if they want to play again"""
+    #gathers the highest possible score
+    peak_score = TOTAL_QUES * FIRST_TRY
+    #displays user's score out of highest, their letter rank (which is gathered from get_rank function)
+    messagebox.showinfo("Finished", f"Final score: {score}/{peak_score}\nRank: {get_rank(score)}", parent = win)
+
+    win.destroy()
+
+    #conditional that prompts if the user wants to play again
+    if messagebox.askyesno("Play again?", "play the quiz again?"):
+        displayMenu()
+    else:
+        win.destroy()
+
+#quiz window (seperate)
+
+def open_questions(difficulty):
+    """opens seperate window for the difficulty player chooses"""
+    #window configs
+    win = tk.Toplevel(main) #toplevel is a widget which creates a seperate pop up window
+    win.title(f"{difficulty.capitalize()} Questions") #sets window title
+    win.geometry(('600x300')) #window dimensions
+    win.configure()
+    win.transient(main) #prioritises this window over the main menu screen
+    win.grab_set() #blocks any interaction with the main window until the questions are either completed or closed
+
+    state = {"index": 0, "score": 0, "attempt": 1, "answer": None} #tracks player's progress in teh quiz - index holds the position of teh current question the player is in, score is how many answers the player got right
 
 
-    tk.Button(win, text='Submit', command=submit).pack(pady="10")
-    show_question()
+    q_label = tk.Label(win, text="", font=("Robotica", 14), wraplength=300) #this label is in place to display the questions
+    q_label.pack(pady=15)
+
+    #attempts
+    a_label = tk.Label(win, text="", font=("Robotica", 14))
+    a_label.pack(pady=3)
+
+    #input widgets
+    answer_entry = tk.Entry(win) 
+    answer_entry.pack(pady=5)
 
 
 
 
 
-
-
-
+#startup
+displayMenu()
 main.mainloop()
