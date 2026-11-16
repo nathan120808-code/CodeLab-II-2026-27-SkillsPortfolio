@@ -40,6 +40,37 @@ def decideOp():
     """randomly chooses if teh operation is addition or subtraction"""
     return random.choice(['+','-'])
 
+def display_menu():
+    """displays main ui"""
+
+    #clears everything on the main win when player chooses to play again
+    for widget in main.winfo_children():
+        widget.destroy()
+
+    #title
+    title1 = tk.Label(main, text="Test your Math!",
+                font = title_font
+                ).pack(pady= 30)
+
+    #difficulty levels - naming variables and assigning attributes and positioning
+    dif1 = tk.Button(main, text="Easy",
+                bg = 'green',
+                font= button_font,
+                width= 20,
+                height= 2,
+                command=lambda: open_questions("easy")).pack(pady= 10)
+    dif2 = tk.Button(main, text="Intermediate",
+                bg = 'yellow',
+                font= button_font,
+                width= 20,
+                height= 2,
+                command=lambda: open_questions('intermediate')).pack(pady= 10)
+    dif3 = tk.Button(main, text='Advanced',
+                bg='red',
+                font= button_font,
+                width= 20,
+                height= 2,
+                command=lambda: open_questions('advanced')).pack(pady= 10)
 
 
 
