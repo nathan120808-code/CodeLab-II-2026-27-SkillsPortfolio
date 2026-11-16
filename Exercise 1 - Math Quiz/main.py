@@ -36,11 +36,11 @@ def randomint(difficulty):
     low, high = RANGES[difficulty]
     return random.randint(low,high)
 
-def decideOp():
+def decideOperation():
     """randomly chooses if teh operation is addition or subtraction"""
     return random.choice(['+','-'])
 
-def display_menu():
+def displayMenu():
     """displays main ui"""
 
     #clears everything on the main win when player chooses to play again
@@ -71,6 +71,68 @@ def display_menu():
                 width= 20,
                 height= 2,
                 command=lambda: open_questions('advanced')).pack(pady= 10)
+
+
+def displayProblem(q_label, answer_entry, attempt_label, state, difficulty):
+    """creates random problems, is displayed and clears answer box. and returns the correct answer to the problem"""
+
+    #a and b are assigned random numbers based on teh global dictionary's numebr range per difficulty
+    a = randomint(difficulty) 
+    b = randomint(difficulty)
+    operation = decideOperation()
+
+    if operation == '+': #simple conditional to determine addition or subtraction
+        correct_answer = a + b
+    else:
+        correct_answer = a - b
+
+    #sets the text in q_label to display the problem in this format
+    q_label.config(text=f"Question {state['index'] + 1} of {TOTAL_QUES}\n\n{a} {operation} {b} =")
+
+    attempt_label.config(text='First attempt = 10 points')
+    answer_entry.delete(0,tk.END) #clears entry box for player convenience
+
+    return correct_answer
+
+
+def isCorrect(user_answer, correct_answer, attempt, parent):
+    """checks player answer, then shows a message indicating if they were right or wrong"""
+    #this conditional checks if the user's answer is correct, checks if it was submitted first or second try,
+    #then prompts the appropriate amount of points
+    if user_answer == correct_answer:
+        points = FIRST_TRY if attempt == 1 else SECOND_TRY
+        messagebox.showinfo("Result", f"Correct! + {points} points", parent=parent)
+        return True #exits function immediately if answer is correct
+
+    #only reached if answer is wrong
+    #conditional checks if attempt is equal to 1, otherwise if the user misses their second chance, it prompts the appropriate message
+    if attempt == 1:
+        messagebox.showinfo("Result", "Wrong, one more try!", parent = parent)
+    else:
+        messagebox.showinfo("Result", f"Wrong! The answer was: {correct_answer}", parent=parent)
+
+    return False
+
+
+
+def get_rank(score):
+    """converts the points into a letter rating"""
+    #basic conditional statements covering the entry point of each rank
+    if score >= 70:
+        return "A"
+    elif score >= 60:
+        return "B"
+    elif score >= 50:
+        return "C"
+    elif score >= 40:
+        return "D"
+    else:
+        return "F"
+
+
+
+    tk.Button(win, text='Submit', command=submit).pack(pady="10")
+    show_question()
 
 
 
