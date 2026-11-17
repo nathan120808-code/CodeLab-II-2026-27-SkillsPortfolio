@@ -170,7 +170,41 @@ def open_questions(difficulty):
     answer_entry = tk.Entry(win) 
     answer_entry.pack(pady=5)
 
+    def submit():
+        try:
+            user_answer = int(answer_entry.get().strip())
+        except ValueError:
+            messagebox.showwarning("Invalid input", "Enter a whole number", parent=win)
 
+        #conditional determining the answer's state(whether 1st or 2nd try) and assigns appropriate points
+        if isCorrect(user_answer, state["answer"], state["attempt"], win):
+            #10 points on first attempt, 5 points on second onto the state of 'score'
+            state['score'] += FIRST_TRY if state['attempt'] == 1 else SECOND_TRY 
+            next_question()
+        elif state['attempt'] == 1:
+            #wrong on first try - changes state of attempts from 1 to 2 and displays appropriate message
+            state["attempt"] = 2
+            a_label.config(text="2nd Attempt - 5 pts")
+            answer_entry.delete(0,tk.END)
+        #moves on to next question if second try is wrong
+        else:
+            next_question()
+
+    def next_question():
+        """moves to next problem, or ends quiz if the final question is reached"""
+        state['index'] += 1 #adds 1 so index doesnt start at 0
+        state["attempt"] = 1 #constantly sets every question attempt state to 1
+        #if teh question number is below 10(max), displayProblem is called which continues to generate a new problem
+        if state['index'] < TOTAL_QUES:
+            state['answer'] = displayProblem(q_label, answer_entry, a_label, state, difficulty)
+        #if index is more than max question, displayResults is called, displaying score state and seperate window
+        else:
+            displayResults(state['score'], win)
+
+    tk.Button(win, text='Submit', command=submit).pack(pady="10")
+
+    #first problem
+    state['answer'] = displayProblem(q_label, answer_entry, a_label, state, difficulty)
 
 
 
