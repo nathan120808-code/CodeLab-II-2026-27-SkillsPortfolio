@@ -1,0 +1,57 @@
+import tkinter as tk
+import os
+import random
+
+main = tk.Tk()
+main.title("Joke Generator")
+main.geometry("800x500")
+main.resizable(0,0)
+main.config(
+    bg="#1A2A3A"
+)
+
+#GLOBAL dataset (this was figured using gemini)
+JOKE_DATA = os.path.join(os.path.dirname(os.path.abspath(__file__)), "randomJokes.txt")
+
+
+
+
+#FRONTEND
+
+#title
+title1 = tk.Label(main, text="Joke Generator",font=('Robotica', 25), fg= "#ffffff", bg= "#1A2A3A")
+title1.pack(pady=25)
+
+#joke button
+alexa_b = tk.Button(main, text="Alexa tell me a joke", font=('Robotica', 16), command=joke_new)
+alexa_b.pack(pady=10)
+
+
+#JOKE DISPLAY
+#joke setup
+question_label1 = tk.Label(main, text="",font=('Robotica', 18), fg= "#ffffff", bg= "#1A2A3A", wraplength=700,justify="center")
+question_label1.pack(pady=(20,10))
+
+#joke punchline
+question_label2 = tk.Label(main, text="",font=('Robotica', 18,'italic'), fg= "#ffffff", bg= "#1A2A3A", wraplength=700, justify='center')
+question_label2.pack(pady=10)
+
+#ROW AND BUTTONS
+button_row = tk.Frame(main, bg='#1A2A3A')
+button_row.pack(pady=25)
+
+#punchline
+gen_button1= tk.Button(button_row, text="Show Punchline", font=('Robotica', 15), width = 14, state="disabled", command=show_punchline)
+gen_button1.grid(row=0,column=0,padx=8)
+#next button
+gen_button2 = tk.Button(button_row, text="Next Joke", font=('Robotica', 15), width = 14, state="disabled", command=joke_new)
+gen_button2.grid(row=0,column=1,padx=8)
+#quit button
+gen_button3 = tk.Button(button_row, text="Quit", font=('Robotica', 15), width = 14, command=quit_app)
+gen_button3.grid(row=0,column=2,padx=8)
+
+if not JOKES: #IF the jokes txt file is not available locally - this statement will activate, disabling teh joke button and displaying the unavail text
+    alexa_b.config(state="disabled")
+    question_label1.config(text="Couldn't find any jokes. Make sure randomJokes.txt is in the local folder")
+
+main.mainloop()
