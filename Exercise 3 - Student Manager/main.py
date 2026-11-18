@@ -3,72 +3,90 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
 #globals
-COURSE_COUNT = 3
-COURSE_MARK = 20
-EXAM_MARK = 100 
-TOTAL_MARK = COURSE_COUNT * COURSE_MARK + EXAM_MARK #out of 160
+TOTAL_MARK = 160 #out of 160
 
 #data line layout for notes
 #2345,Sam Sturtivant,14,15,14,77
 #student code, name, course marks(3), exam marks
 
+#each student is a dict
+# {"number": studentid, "name": "studentname", "marks": [1,2,3], "exam": 100}
+
 #to link the txt file
 FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "studentMarks.txt")
 
 #file handler
-def load_student(filename):
-    """this reads the student txt file - returnign back the student line, the problems in the line(invalid values or characters), and the countline"""
-    students = []
-    problem = []
-    count_line = False
+def load():
+    """reads txt file and loads liens into dictionaries"""
+    students =[]
+    if not os.path.exists(FILE):
+        return students
+    with open(FILE) as f:
+        lines = f.read().splitlines()[1:] #skip line 1
+    for line in lines:
+        if line.strip():
+            p = line.split(",")
+            #splits the data seperately into their corresponding class
+            students.append({"number": int(p[0]),
+                            "name": p[1],
+                            "marks": [int(m) for m in p[2:5]],
+                            "exam": int(p[5])})
 
-    #this fires IF the txt file is not available locally
-    if not os.path.exists(filename):
-        return student, True, [f"Could not find the file:\n{filename}\nIt will be created when you save a change."]
+    return students
 
-    #reads and opens the txt file - strips down every line too
-    with open(filename, 'r', encoding = 'utf-8') as f:
-        lines = [line.strip() for line in f if line.strip()]
+def save():
+    """writes whole list back to the txt file"""
+    with open(FILE, "w") as f:
+        f.write(f"{len(students)}\n")
+        for s in students:
+            parts = [str(s["number"]),
+                      s["name"] + [str(m) for m in s["marks"]] + [str(s["exam"])]]
+            f.write(",".join(parts) + "\n")
 
-    #splits all the data into
-    for position, line in enumerate(lines):
-        parts = [part.strip() for part in line.split(",")]
-
-        if position == 0 and len(parts) == 1 and parts[0].isdigit():
-            count_line = True
-            continue
-
-        try:
-            if len(parts) != 2 + COURSE_COUNT + 1:
-                raise ValueError
-            student.append({
-                "number": parts[0],
-                "name": parts[0],
-                "coursework": [int(mark) for mark in parts [2:2 + COURSE_COUNT]],
-                "exam": parts[-1]
-            })
-        except ValueError:
-            problem.append(f"Line {position +1} skipped: {line}")
-
-    return student, count_line, problem
-
-def student_save(filename, students, count_line):
-    lines = []
-    if count_line:
-        lines.append(str(len(students)))
-    for student in students:
-        parts = [student['number'], student['name']]
-        parts += [str(mark) for mark in student['coursework']]
-
-
-
-    
 
 #functions for calculating
-def course_total(student):
+def course_total(s):
     """returns total coursework marks"""
-    return sum(student['coursework'])
+    return sum(s["marks"]) + s["exam"]
 
-def score_total(student):
+def score_total(s):
     """returns total of exam + course marks"""
-    return course_total('student') + student['exam']
+    return course_total(s) / TOTAL_MARK * 100
+
+def grade_total(s):
+    st = score_total(s)
+    if st >= 70:
+        return "A"
+    if st >= 60:
+        return "B"
+    if st >= 50:
+        return "C"
+    if st >= 40:
+        return "D"
+    return "F"
+
+#backend functionality
+def show_student(records, summar=''):
+    """every menu item prints through here with the same format - displaying all relevant student details"""
+    output.delete("1.0", tk.END)
+    for s in records:
+        output.insert(tk.END, f"{s['name']} ({s['number']}) Coursework: {sum(s['marks'])}/60"
+                      f"Exam: {s['exam']}/100 Overall: {score_total(s):.1f}% Grade: {grade_total(s)}\n")
+
+def has_students():
+    """"""
+    if not students:
+        messagebox.showinfo("No data", "Please check if student records is in the local folder")
+
+#FRONTEND
+
+main = tk.Tk()
+main.title("Student Manager")
+main.geometry("800x500")
+main.resizable(0,0)
+main.config(
+    bg = "#323B4E"
+)
+
+title_label = tk.Label(main, text="Student Manager")
+
